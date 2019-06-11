@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     methods: {
       previousSearch: () => localStorage.railator_lastSearch,
 
-      whereLeftOff: () => JSON.parse(localStorage.railator_lastFrame),
+      whereLeftOff: () => localStorage.railator_lastFrame ? JSON.parse(localStorage.railator_lastFrame) : null,
 
       restoreWhereLeft: () => {
         const lastFrame = vm.whereLeftOff();
