@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Railator - train information</title>
+
+    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css" />
+    <link rel="stylesheet" type="text/css" href="railator.css" />
+
+    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js"></script>
+    <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script type="application/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script type="application/javascript" src="components.js"></script>
+    <script type="application/javascript" src="railator.js"></script>
+</head>
+<body>
+<div id="app">
+    <nav class="navbar navbar-expand-xl navbar-dark bg-dark mb-4">
+        <a href="#" role="button" v-on:click="goBackOne" class="text-light back"><i class="fas fa-arrow-left" aria-label="Back"></i></a>
+        <a class="navbar-brand" href="#">Railator</a>
+    </nav>
+    <div class="col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
+        <div class="search">
+            <div class="input-group">
+                <input type="text" name="search" id="search" v-bind:disabled="searching" class="form-control" />
+                <div class="input-group-append">
+                    <button type="submit" id="search-submit" v-bind:disabled="searching" class="btn btn-primary" v-on:click="handleSearch"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="mb-2">
+                <small class="text-muted d-block mb-0 mt-1">Enter a CRS or headcode to get info on stations/trains.</small>
+                <small class="text-muted d-block mb-0 mt-1" v-if="!!previousSearch() && mode === ''">
+                    You last searched for
+                    <a href="#" v-on:click="autoSearchFromStorage"><strong>{{ previousSearch() }}</strong></a>.
+                </small>
+                <small class="text-muted" v-if="!!whereLeftOff() && mode === ''">
+                    <a href="#" v-on:click="restoreWhereLeft"><strong>Restore where you left off?</strong></a>
+                </small>
+            </div>
+            <div class="my-2 d-flex justify-content-around" v-if="searching">
+                <i class="fas fa-2x fa-compass fa-spin"></i>
+            </div>
+        </div>
+
+        <div v-if="mode === 'error'">
+            <div class="alert alert-danger">
+                <strong>Computer says no</strong><br/>
+                <p class="mb-1">An error was encountered with your request - check you typed your search correctly and try again.</p>
+                <small class="text-muted">{{ error }}</small>
+            </div>
+        </div>
+
+        <div v-if="mode === 'stations-didyoumean'">
+            <h3>Whoops!</h3>
+            <p>We couldn't find that station or train code. Did you mean one of these?</p>
+            <p v-for="station in stationsDidYouMean" class="mb-1">
+                <a href="#" v-on:click="autoSearch(station.crs)"><span v-html="station.name"></span> ({{ station.crs }})</a>
+            </p>
+        </div>
+
+        <div v-if="mode === 'station'">
+            <h3 class="mb-0">
+                <span v-html="station.name"></span> ({{ station.crs }})
+                <small><a v-bind:href="`#station-${station.crs}`"><i class="fas fa-link"></i></a></small>
+            </h3>
+            <small class="text-muted mb-2">Station managed by {{ station.manager }}.</small>
+
+            <div v-if="station.servicesAreUnavailable" class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Services are currently unavailable at this station. Please refer to information messages or the National Rail website for further details.
+            </div>
+
+            <div v-if="station.nrcc.length" class="mb-2">
+                <div v-for="message in station.nrcc">
+                    <div v-bind:class="nrccSeverity(message.severity)">
+                        <strong>{{ message.category }}</strong> &mdash; <span v-html="decodeEntities(message.xhtmlMessage)"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-2">
+                <h4>Departures</h4>
+                <p v-if="!station.dep.length"><em>No train services departing in the next hour.</em></p>
+                <p v-for="service in station.dep" class="mb-1">
+                    <departure-link v-bind:service="service" v-on:service-mode="serviceMode($event)"></departure-link>
+                </p>
+            </div>
+            <div class="mb-2">
+                <h4>Arrivals</h4>
+                <p v-if="!station.dep.length"><em>No train services arriving in the next hour.</em></p>
+                <p v-for="service in station.arr" class="mb-1">
+                    <a href="#" v-on:click="serviceMode(service)">
+                        {{ new Date(service.sta).toZuluTimeString() }}
+                        {{ service.trainid }} <small>from</small>
+                        <span v-html="service.origin.location.locationName"></span>
+                        <small class="text-muted" v-if="!!service['platform']">
+                            <span v-if="!service.platformIsHidden">plat {{ service.platform }}</span>
+                            <span v-if="service.platformIsHidden" title="preliminary, subject to change">plat {{ service.platform }}&dagger;</span>
+                        </small>
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div v-if="mode === 'headcode'">
+            <h3>Hmmm...</h3>
+            <p class="mb-2" v-if="headcode.length">Which of the following services did you mean?</p>
+            <p v-if="!headcode.length">We can't find any services matching that headcode.</p>
+            <p class="mb-1" v-for="service in headcode">
+                <a href="#" v-on:click="serviceMode(service)">
+                    {{ new Date(service.scheduledDeparture).toZuluTimeString() }}
+                    {{ service.trainid }}
+                    <span v-html="service.originName"></span> <small>to</small>
+                    <span v-html="service.destinationName"></span>
+                </a>
+            </p>
+        </div>
+
+        <div v-if="mode === 'service'">
+            <h3 class="mb-0">
+                {{ new Date(serviceDetails.origin.std).toZuluTimeString() }}
+                {{ serviceDetails.trainid }}
+                {{ serviceDetails.origin.crs }} &ndash;
+                {{ serviceDetails.destination.crs }}
+                <small><a v-bind:href="`#service-${serviceDetails.rid}`"><i class="fas fa-link"></i></a></small>
+            </h3>
+            <small class="text-muted mb-0">{{ serviceDetails.sdd }}</small>
+            <p>
+                <span v-if="serviceDetails.operator"><small class="text-muted">a</small> {{ serviceDetails.operator }} <small class="text-muted">service</small><br/></span>
+                <small class="text-muted">from</small> <span v-html="serviceDetails.origin.locationName"></span><br/>
+                <small class="text-muted">to&nbsp;&nbsp;</small> <span v-html="serviceDetails.destination.locationName"></span>
+                <span v-if="serviceDetails.stations[0].length"><br/><small class="text-muted">formed of</small> {{ serviceDetails.stations[0].length }} <small class="text-muted">coaches</small></span>
+            </p>
+
+            <div v-if="serviceDetails.delayReason && !serviceDetails.cancelReason" class="alert alert-warning">
+                <p class="mb-0"><i class="fas fa-exclamation-triangle"></i> <strong>Delayed</strong></p>
+                {{ getReason('delay', serviceDetails.delayReason.content) }}.
+            </div>
+
+            <div v-if="serviceDetails.cancelReason" class="alert alert-danger">
+                <p class="mb-0"><i class="fas fa-times-circle"></i> <strong>Cancelled at {{ serviceDetails.locations.location.filter(x => x.isCancelled)[0].locationName }}</strong></p>
+                {{ getReason('cancel', serviceDetails.cancelReason.content) }}.
+            </div>
+
+            <div class="timeline" v-if="serviceDetails.stations.length">
+                <div v-for="location in serviceDetails.stations" class="timeline-item">
+                    <div class="timeline-content">
+                        <p class="mb-0"><strong><span v-html="location.locationName"></span> ({{ location.crs }})</strong></p>
+
+                        <small v-if="location.departureType === 'Actual' || location.departureType === 'NoLog'">
+                            Departed {{ new Date(location.atd || location.std).toZuluTimeString() }}
+                            <span v-if="!!location.lateness && location.lateness > 60">&middot; <span class="text-danger">{{ Math.round(location.lateness / 60) }}m late</span></span>
+                        </small>
+                        <small v-if="location.departureType === 'Delayed'">
+                            Scheduled {{ new Date(location.std).toZuluTimeString() }} &middot;
+                            <span class="text-danger">Delayed</span>
+                            <span v-if="location.etd">&middot; Est'd {{ new Date(location.etd).toZuluTimeString() }}</span>
+                        </small>
+                        <small v-if="location.departureType === 'Forecast'">
+                            Scheduled {{ new Date(location.std).toZuluTimeString() }}
+                            <span v-if="!!location.etd && (new Date(location.etd).getTime() - new Date(location.std).getTime()) >= 60000">
+                                &middot; Est'd {{ new Date(location.etd).toZuluTimeString() }}
+                            </span>
+                        </small>
+                        <small v-if="location.isCancelled" class="text-danger">
+                            Cancelled
+                        </small>
+
+                        <span v-if="location.crs === serviceDetails.destination.crs">
+                            <small v-if="location.arrivalType === 'Actual' || location.arrivalType === 'NoLog'">
+                                Arrived {{ new Date(location.ata || location.sta).toZuluTimeString() }}
+                                <span v-if="!!location.lateness && location.lateness > 0">&middot; <span class="text-danger">{{ Math.round(location.lateness / 60) }}m late</span></span>
+                            </small>
+                            <small v-if="location.arrivalType === 'Delayed'">
+                                Scheduled {{ new Date(location.sta).toZuluTimeString() }} &middot;
+                                <span class="text-danger">Delayed</span>
+                                <span v-if="location.eta">&middot; Est'd {{ new Date(location.eta).toZuluTimeString() }}</span>
+                            </small>
+                            <small v-if="location.arrivalType === 'Forecast'">
+                                Scheduled {{ new Date(location.sta).toZuluTimeString() }}
+                                <span v-if="!!location.eta && (new Date(location.eta).getTime() - new Date(location.sta).getTime()) >= 60000">
+                                    &middot; Est'd {{ new Date(location.eta).toZuluTimeString() }}
+                                </span>
+                            </small>
+                        </span>
+
+                        <br v-if="!!location.platform" />
+                        <small v-if="!!location.platform" class="text-muted">
+                            <span v-if="!location.platformIsHidden">
+                                Platform {{ location.platform }}
+                            </span>
+                            <span v-if="!!location.platformIsHidden" title="preliminary, subject to change">
+                                Platform {{ location.platform }}&dagger;
+                            </span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

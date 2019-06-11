@@ -1,0 +1,56 @@
+button {
+    cursor: pointer !important;
+}
+
+nav {
+    position: sticky !important;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    justify-content: center !important;
+}
+
+nav .back {
+    margin-right: 1em;
+}
+
+.search {
+    z-index: 998;
+}
+
+.cancelled {
+    cursor: default;
+    text-decoration: line-through;
+}
+
+.timeline {
+    position: relative;
+}
+.timeline::after {
+    content: '';
+    position: absolute;
+    width: 3px;
+    background: #007BFF;
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.timeline-item {
+    padding: 0.5em 1em;
+    position: relative;
+}
+
+.timeline-content::after {
+    content: '';
+    position: absolute;
+    width: 0.8em;
+    height: 0.8em;
+    top: 0.5em;
+    left: -0.3em;
+    background: white;
+    border: 3px solid #007BFF;
+    border-radius: 50%;
+    z-index: 1;
+    margin-top: 0.4em;
+}
