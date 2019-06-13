@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           const frame = {};
           vm.history.attributes.forEach(a => { frame[a] = vm[a] });
           vm.history.store.push(frame);
-          localStorage.railator_lastFrame = JSON.stringify(frame);
           if (vm.history.store.length > vm.history.maxFrames) {
             vm.history.store.shift();
           }
@@ -58,17 +57,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     methods: {
       previousSearch: () => localStorage.railator_lastSearch,
 
-      whereLeftOff: () => localStorage.railator_lastFrame ? JSON.parse(localStorage.railator_lastFrame) : null,
+      whereLeftOff: () => localStorage.railator_lastFrame,
 
       restoreWhereLeft: () => {
-        const lastFrame = vm.whereLeftOff();
-        Object.keys(lastFrame).forEach(a => {
-          vm[a] = lastFrame[a];
-        });
+        vm.processHash(localStorage.railator_lastFrame);
       },
 
       nrccSeverity: sev => {
-        return ({ 'Minor': 'alert alert-info', 'Normal': 'alert alert-warning', 'Major': 'alert alert-danger' })[sev];
+        return ({ 'Minor': 'alert alert-warning', 'Normal': 'alert alert-info', 'Major': 'alert alert-danger' })[sev];
       },
 
       decodeEntities: str => he.decode(str),
@@ -150,6 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 departures.trainServices.service instanceof Array ? departures.trainServices.service : [departures.trainServices.service],
         };
 
+        localStorage.railator_lastFrame = `#station-${arrivals.crs}`;
         vm.mode = 'station';
       },
 
@@ -172,6 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         vm.serviceDetails = data;
 
+        localStorage.railator_lastFrame = `#service-${data.rid}`;
         vm.mode = 'service';
         vm.history.storeFrame();
       },
@@ -183,6 +181,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         else if (type === 'cancel') {
           return filtered.length > 0 ? filtered[0].cancReason : 'This train has been cancelled. Check information boards at stations for further informationm';
+        }
+      },
+
+      processHash: hash => {
+        const parts = hash.split('-');
+        if (parts.length < 2) return;
+        const mode = parts[0];
+        const id = parts[1];
+
+        if (mode === '#station') {
+          vm.autoSearch(id);
+        }
+        else if (mode === '#service') {
+          vm.serviceMode(id);
         }
       }
     }
@@ -197,16 +209,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (location.hash) {
-    const parts = location.hash.split('-');
-    if (parts.length < 2) return;
-    const mode = parts[0];
-    const id = parts[1];
-
-    if (mode === '#station') {
-      vm.autoSearch(id);
-    }
-    else if (mode === '#service') {
-      vm.serviceMode(id);
-    }
+    vm.processHash(location.hash);
   }
 });
