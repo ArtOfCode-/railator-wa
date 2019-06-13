@@ -31,7 +31,7 @@ nav .back {
     position: absolute;
     width: 3px;
     background: #007BFF;
-    top: 0;
+    top: 1em;
     bottom: 0;
     left: 0;
 }
@@ -41,13 +41,25 @@ nav .back {
     position: relative;
 }
 
+.timeline > .timeline-item:last-of-type::after {
+    content: '';
+    display: block;
+    width: 3px;
+    background: white;
+    position: absolute;
+    top: 1.7em;
+    bottom: 0;
+    left: 0em;
+    z-index: 1;
+}
+
 .timeline-content::after {
     content: '';
     position: absolute;
     width: 0.8em;
     height: 0.8em;
     top: 0.5em;
-    left: -0.3em;
+    left: -0.31em;
     background: white;
     border: 3px solid #007BFF;
     border-radius: 50%;

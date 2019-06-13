@@ -142,13 +142,20 @@
                 {{ getReason('cancel', serviceDetails.cancelReason.content) }}.
             </div>
 
-            <div class="timeline" v-if="serviceDetails.stations.length">
-                <div v-for="location in serviceDetails.stations" class="timeline-item">
-                    <div class="timeline-content">
-                        <p class="mb-0"><strong><span v-html="location.locationName"></span> ({{ location.crs }})</strong></p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="display-intermediate-points" v-on:click="switchDisplayPassPoints" />
+                <label class="custom-control-label" for="display-intermediate-points">Display passing/routing points</label>
+            </div>
+
+            <div class="timeline" v-if="serviceDetails.displayPoints.length">
+                <div v-for="location in serviceDetails.displayPoints" class="timeline-item">
+                    <div v-bind:class="(location.isPass || !location.crs) ? 'timeline-content text-muted' : 'timeline-content'">
+                        <p v-bind:class="(location.isPass || !location.crs) ? 'mb-0' : 'mb-0 font-weight-bold'">
+                            <span v-html="location.locationName"></span> ({{ location.crs || location.tiploc }})
+                        </p>
 
                         <small v-if="location.departureType === 'Actual' || location.departureType === 'NoLog'">
-                            Departed {{ new Date(location.atd || location.std).toZuluTimeString() }}
+                            {{ location.isPass ? 'Passed' : 'Departed' }} {{ new Date(location.atd || location.std).toZuluTimeString() }}
                             <span v-if="!!location.lateness && location.lateness > 60">&middot; <span class="text-danger">{{ Math.round(location.lateness / 60) }}m late</span></span>
                         </small>
                         <small v-if="location.departureType === 'Delayed'">

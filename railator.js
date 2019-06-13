@@ -166,6 +166,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         data.origin = data.locations.location[0];
         data.destination = data.locations.location[data.locations.location.length - 1];
         data.stations = data.locations.location.length ? data.locations.location.filter(x => !!x.crs && !x.isPass) : [];
+        data.displayPoints = data.stations;
+        data.displayPassPoints = false;
 
         vm.serviceDetails = data;
 
@@ -196,6 +198,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         else if (mode === '#service') {
           vm.serviceMode(id);
         }
+      },
+
+      switchDisplayPassPoints: () => {
+        if (vm.serviceDetails.displayPassPoints) {
+          vm.serviceDetails.displayPoints = vm.serviceDetails.stations;
+        }
+        else {
+          vm.serviceDetails.displayPoints = vm.serviceDetails.locations.location;
+        }
+        vm.serviceDetails.displayPassPoints = !vm.serviceDetails.displayPassPoints;
       }
     }
   });
@@ -211,4 +223,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (location.hash) {
     vm.processHash(location.hash);
   }
+
+  $('#search').on('keydown', ev => {
+    if (ev.keyCode === 13) {
+      $('#search-submit').click();
+    }
+  });
 });
