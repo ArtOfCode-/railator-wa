@@ -21,7 +21,7 @@
         <a href="#" role="button" v-on:click="goBackOne" class="text-light back"><i class="fas fa-arrow-left" aria-label="Back"></i></a>
         <a class="navbar-brand" href="#">Railator</a>
     </nav>
-    <div class="col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
+    <div class="content col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
         <div class="search">
             <div class="input-group">
                 <input type="text" name="search" id="search" v-bind:disabled="searching" class="form-control" />
@@ -95,7 +95,7 @@
                         <span v-html="service.origin.location.locationName"></span>
                         <small class="text-muted" v-if="!!service['platform']">
                             <span v-if="!service.platformIsHidden">plat {{ service.platform }}</span>
-                            <span v-if="service.platformIsHidden" title="preliminary, subject to change">plat {{ service.platform }}&dagger;</span>
+                            <span v-if="service.platformIsHidden" title="preliminary, subject to change">plat {{ service.platform }}?</span>
                         </small>
                     </a>
                 </p>
@@ -205,13 +205,16 @@
                                 Platform {{ location.platform }}
                             </span>
                             <span v-if="!!location.platformIsHidden" title="preliminary, subject to change">
-                                Platform {{ location.platform }}&dagger;
+                                Platform {{ location.platform }}?
                             </span>
                         </small>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="footer col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
+        <p>Powered by <a href="https://www.nationalrail.co.uk/">National Rail Enquiries</a></p>
     </div>
 </div>
 <script async type="application/javascript" src="locations.js"></script>
