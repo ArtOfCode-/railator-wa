@@ -151,7 +151,14 @@
                 <div v-for="location in serviceDetails.displayPoints" class="timeline-item">
                     <div v-bind:class="(location.isPass || !location.crs) ? 'timeline-content text-muted' : 'timeline-content'">
                         <p v-bind:class="(location.isPass || !location.crs) ? 'mb-0' : 'mb-0 font-weight-bold'">
-                            <span v-html="location.locationName"></span> ({{ location.crs || location.tiploc }})
+                            <span v-if="location.locationName === location.tiploc">
+                                <span v-html="getTiplocLocation(location.locationName)"></span> ({{ location.tiploc }})
+                                <span v-if="location.isPass || !location.crs" class="point-type routing" title="Route Designator" aria-label="Route Designator">RD</span>
+                            </span>
+                            <span v-if="location.locationName !== location.tiploc">
+                                <span v-html="location.locationName"></span> ({{ location.crs || location.tiploc }})
+                                <span v-if="location.isPass || !location.crs" class="point-type pass" title="Pass Point" aria-label="Pass Point">PP</span>
+                            </span>
                         </p>
 
                         <small v-if="location.departureType === 'Actual' || location.departureType === 'NoLog'">
@@ -169,11 +176,8 @@
                                 &middot; Est'd {{ new Date(location.etd).toZuluTimeString() }}
                             </span>
                         </small>
-                        <small v-if="location.isCancelled" class="text-danger">
-                            Cancelled
-                        </small>
 
-                        <span v-if="location.crs === serviceDetails.destination.crs">
+                        <span v-if="location.crs === serviceDetails.destination.crs || (!location.departureType && !location.isCancelled)">
                             <small v-if="location.arrivalType === 'Actual' || location.arrivalType === 'NoLog'">
                                 Arrived {{ new Date(location.ata || location.sta).toZuluTimeString() }}
                                 <span v-if="!!location.lateness && location.lateness > 0">&middot; <span class="text-danger">{{ Math.round(location.lateness / 60) }}m late</span></span>
@@ -191,6 +195,10 @@
                             </small>
                         </span>
 
+                        <small v-if="location.isCancelled" class="text-danger">
+                            Cancelled
+                        </small>
+
                         <br v-if="!!location.platform" />
                         <small v-if="!!location.platform" class="text-muted">
                             <span v-if="!location.platformIsHidden">
@@ -206,5 +214,6 @@
         </div>
     </div>
 </div>
+<script async type="application/javascript" src="locations.js"></script>
 </body>
 </html>

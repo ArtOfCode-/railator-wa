@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       service: null,
       serviceDetails: null,
       error: '',
+      tiplocLocationData: null,
 
       history: {
         maxFrames: 20,
@@ -208,6 +209,21 @@ document.addEventListener('DOMContentLoaded', async () => {
           vm.serviceDetails.displayPoints = vm.serviceDetails.locations.location;
         }
         vm.serviceDetails.displayPassPoints = !vm.serviceDetails.displayPassPoints;
+      },
+
+      getTiplocLocation: locationName => {
+        if (vm.tiplocLocationData) {
+          const matches = vm.tiplocLocationData.filter(x => x.tiploc === locationName);
+          if (matches.length > 0) {
+            return matches[0].locationName;
+          }
+          else {
+            return locationName;
+          }
+        }
+        else {
+          return locationName;
+        }
       }
     }
   });

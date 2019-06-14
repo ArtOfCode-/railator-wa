@@ -66,3 +66,21 @@ nav .back {
     z-index: 1;
     margin-top: 0.4em;
 }
+
+.point-type {
+    display: inline-block;
+    font-size: 0.7em;
+    color: white;
+    padding: 0.1em 0.6em;
+    border-radius: 0.8em;
+    cursor: help;
+    filter: opacity(0.8);
+}
+
+.point-type.routing {
+    background: var(--pink);
+}
+
+.point-type.pass {
+    background: var(--purple);
+}
