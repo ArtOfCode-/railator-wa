@@ -15,6 +15,13 @@ Date.prototype.toISOStringWithTZ = function () {
     `${tzo === 0 ? 'Z' : `${tzo < 0 ? '+' : '-'}${(Math.floor(Math.abs(tzo) / 60)).toString().padStart(2, '0')}:${(tzo % 60).toString().padStart(2, '0')}`}`;
 };
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    const reg = await navigator.serviceWorker.register('/railator-sw.js');
+    console.log('Registered ServiceWorker', reg);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   window.vm = new Vue({
     el: '#app',
