@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Railator - train information</title>
 
     <link rel="manifest" href="/manifest.json" />
@@ -28,12 +28,14 @@
         <a href="#" role="button" v-on:click="goBackOne" class="text-light back"><i class="fas fa-arrow-left" aria-label="Back"></i></a>
         <a class="navbar-brand" href="#">Railator</a>
     </nav>
-    <div class="content col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
+    <main class="content col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
         <div class="search">
             <div class="input-group">
-                <input type="text" name="search" id="search" v-bind:disabled="searching" class="form-control" />
+                <input type="text" name="search" id="search" v-bind:disabled="searching" class="form-control" aria-label="Search" />
                 <div class="input-group-append">
-                    <button type="submit" id="search-submit" v-bind:disabled="searching" class="btn btn-primary" v-on:click="handleSearch"><i class="fas fa-search"></i></button>
+                    <button type="submit" id="search-submit" v-bind:disabled="searching" class="btn btn-primary" v-on:click="handleSearch" aria-label="Submit">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </div>
             <div class="mb-2">
@@ -219,7 +221,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
     <div class="footer col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
         <p>Powered by <a href="https://www.nationalrail.co.uk/">National Rail Enquiries</a></p>
     </div>
