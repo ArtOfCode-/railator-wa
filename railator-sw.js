@@ -1,7 +1,8 @@
-const CACHE_NAME = 'static-cache-v0.0.1';
+const CACHE_NAME = 'static-cache-v0.0.2';
 
 const CACHABLE = [
-    '/railator-offline.html'
+    '/railator-offline.html',
+    '/railator-sw.js'
 ];
 
 self.addEventListener('install', evt => {
