@@ -80,6 +80,18 @@
                 <i class="fas fa-exclamation-triangle"></i> Services are currently unavailable at this station. Please refer to information messages or the National Rail website for further details.
             </div>
 
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="form-row d-flex align-items-center">
+                        Show <input type="number" name="loc-search-timeframe" class="form-control form-control-sm mx-1" style="width: 3rem" value="1" /> hours
+                        after <input type="time" name="loc-search-time" class="form-control form-control-sm mx-1" style="width: 6rem" value="00:00" min="1" max="24" />
+                        on <input type="date" name="loc-search-date" class="form-control form-control-sm mx-1" style="width: 10rem" value="1980-01-01" />
+                        <button type="button" class="btn btn-sm btn-primary" aria-label="Search" v-on:click="handleLocSearch"><i class="fas fa-search"></i></button>
+                        <p class="text-danger mb-0" v-if="locSearchTooFar">Live train info is only available for today and yesterday.</p>
+                    </div>
+                </div>
+            </div>
+            
             <div v-if="station.nrcc.length" class="mb-2">
                 <div v-for="message in station.nrcc">
                     <div v-bind:class="nrccSeverity(message.severity)">

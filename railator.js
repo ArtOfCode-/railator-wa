@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       serviceDetails: null,
       error: '',
       tiplocLocationData: null,
+      locSearchTooFar: false,
 
       history: {
         maxFrames: 20,
@@ -156,6 +157,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         localStorage.railator_lastFrame = `#station-${arrivals.crs}`;
         vm.mode = 'station';
+      },
+
+      handleLocSearch: async () => {
+        vm.searching = true;
+
+        const timeframe = $('input[name="loc-search-timeframe"]').val();
+        const date = $('input[name="loc-search-date"]').val();
+        const time = $('input[name="loc-search-time"]').val();
+        const dt = new Date(`${date}T${time}`);
+        const timeWindow = Math.min(timeframe * 60, 1440);
+
+        if (Math.abs(dt.getTime() - Date.now()) >= 86400000) {
+          vm.locSearchTooFar = true;
+          vm.searching = false;
+          return;
+        }
+        else {
+          vm.locSearchTooFar = false;
+        }
+
+        const arrivals = await vm.makeAPIRequest('GetArrivalBoardByCRS', { numRows: 150, crs: vm.station.crs, time: dt.toISOStringWithTZ(), timeWindow });
+        const departures = await vm.makeAPIRequest('GetDepartureBoardByCRS', { numRows: 150, crs: vm.station.crs, time: dt.toISOStringWithTZ(), timeWindow });
+        if (arrivals === -1 || departures === -1) return;
+
+        vm.station = {
+          name: arrivals.locationName,
+          crs: arrivals.crs,
+          manager: arrivals.stationManager,
+          nrcc: !arrivals.nrccMessages ? [] :
+                 arrivals.nrccMessages.message instanceof Array ? arrivals.nrccMessages.message : [arrivals.nrccMessages.message],
+          arr: !arrivals.trainServices ? [] :
+                arrivals.trainServices.service instanceof Array ? arrivals.trainServices.service : [arrivals.trainServices.service],
+          dep: !departures.trainServices ? [] :
+                departures.trainServices.service instanceof Array ? departures.trainServices.service : [departures.trainServices.service],
+        };
+
+        localStorage.railator_lastFrame = `#station-${arrivals.crs}`;
+        vm.mode = 'station';
+        vm.searching = false;
       },
 
       handleHeadcodeSearch: async search => {
