@@ -63,8 +63,8 @@ Vue.component('arrival-link', {
                 {{ new Date(service.sta).toZuluTimeString() }}
             </span>
         </span>
-        {{ service.trainid }} <small>to</small>
-        <span v-html="service.destination.location.locationName"></span>
+        {{ service.trainid }} <small>from</small>
+        <span v-html="service.origin.location.locationName"></span>
         <small class="text-muted" v-if="!!service['platform']">
             <span v-if="!service.platformIsHidden">plat {{ service.platform }}</span>
             <span v-if="service.platformIsHidden" title="preliminary, subject to change">plat {{ service.platform }}?</span>

@@ -178,7 +178,7 @@
                             </span>
                         </small>
 
-                        <span v-if="location.crs === serviceDetails.destination.crs || (!location.departureType && !location.isCancelled)">
+                        <span v-if="location.tiploc === serviceDetails.destination.tiploc || (!location.departureType && !location.isCancelled)">
                             <small v-if="location.arrivalType === 'Actual' || location.arrivalType === 'NoLog'">
                                 Arrived {{ new Date(location.ata || location.sta).toZuluTimeString() }}
                                 <span v-if="!!location.lateness && location.lateness > 0">&middot; <span class="text-danger">{{ Math.round(location.lateness / 60) }}m late</span></span>
