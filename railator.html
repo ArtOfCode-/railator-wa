@@ -98,15 +98,7 @@
                 <h4>Arrivals</h4>
                 <p v-if="!station.dep.length"><em>No train services arriving in the next hour.</em></p>
                 <p v-for="service in station.arr" class="mb-1">
-                    <a href="#" v-on:click="serviceMode(service)">
-                        {{ new Date(service.sta).toZuluTimeString() }}
-                        {{ service.trainid }} <small>from</small>
-                        <span v-html="service.origin.location.locationName"></span>
-                        <small class="text-muted" v-if="!!service['platform']">
-                            <span v-if="!service.platformIsHidden">plat {{ service.platform }}</span>
-                            <span v-if="service.platformIsHidden" title="preliminary, subject to change">plat {{ service.platform }}?</span>
-                        </small>
-                    </a>
+                    <arrival-link v-bind:service="service" v-on:service-mode="serviceMode($event)"></arrival-link>
                 </p>
             </div>
         </div>
@@ -129,8 +121,8 @@
             <h3 class="mb-0">
                 {{ new Date(serviceDetails.origin.std).toZuluTimeString() }}
                 {{ serviceDetails.trainid }}
-                {{ serviceDetails.origin.crs }} &ndash;
-                {{ serviceDetails.destination.crs }}
+                {{ serviceDetails.origin.crs || serviceDetails.origin.tiploc }} &ndash;
+                {{ serviceDetails.destination.crs || serviceDetails.destination.tiploc }}
                 <small><a v-bind:href="`#service-${serviceDetails.rid}`"><i class="fas fa-link"></i></a></small>
             </h3>
             <small class="text-muted mb-0">{{ serviceDetails.sdd }}</small>
