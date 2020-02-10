@@ -70,4 +70,4 @@ Vue.component('arrival-link', {
             <span v-if="service.platformIsHidden" title="preliminary, subject to change">plat {{ service.platform }}?</span>
         </small>
     </a>`
-})
+});

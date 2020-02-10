@@ -155,6 +155,8 @@
                 {{ getReason('cancel', serviceDetails.cancelReason.content) }}.
             </div>
 
+            <button type="button" class="btn btn-primary my-2" v-on:click="serviceMode(serviceDetails.rid)"><i class="fas fa-sync-alt"></i> Refresh</button>
+
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="display-intermediate-points" v-on:click="switchDisplayPassPoints" />
                 <label class="custom-control-label" for="display-intermediate-points">Display passing/routing points</label>
@@ -169,7 +171,12 @@
                                 <span v-if="location.isPass || !location.crs" class="point-type routing" title="Route Designator" aria-label="Route Designator">RD</span>
                             </span>
                             <span v-if="location.locationName !== location.tiploc">
-                                <span v-html="location.locationName"></span> ({{ location.crs || location.tiploc }})
+                                <span v-if="!!location.crs">
+                                    <a href="#" v-on:click="autoSearch(location.crs)"><span v-html="location.locationName"></span> ({{ location.crs || location.tiploc }})</a>
+                                </span>
+                                <span v-if="!location.crs">
+                                    <span v-html="location.locationName"></span> ({{ location.crs || location.tiploc }})
+                                </span>
                                 <span v-if="location.isPass || !location.crs" class="point-type pass" title="Pass Point" aria-label="Pass Point">PP</span>
                             </span>
                         </p>
@@ -224,6 +231,8 @@
                     </div>
                 </div>
             </div>
+
+            <button type="button" class="btn btn-primary my-2" v-on:click="serviceMode(serviceDetails.rid)"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
     </main>
     <div class="footer col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">

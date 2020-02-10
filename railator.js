@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.vm = new Vue({
     el: '#app',
     data: {
-      apiBase: 'http://localhost:3000',
+      apiBase: 'https://railator.artofcode.co.uk/',
       apiVersion: '2017-10-01',
       stations: [],
       reasons: [],
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       },
 
       nrccSeverity: sev => {
-        return ({ 'Minor': 'alert alert-warning', 'Normal': 'alert alert-info', 'Major': 'alert alert-danger' })[sev];
+        return ({ 'Minor': 'alert alert-warning', 'Normal': 'alert alert-info', 'Major': 'alert alert-danger', 'Severe': 'alert alert-danger' })[sev];
       },
 
       decodeEntities: str => he.decode(str),
@@ -218,6 +218,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         data.displayPassPoints = false;
 
         vm.serviceDetails = data;
+
+        $('#display-intermediate-points').prop('checked', false);
 
         localStorage.railator_lastFrame = `#service-${data.rid}`;
         vm.mode = 'service';
