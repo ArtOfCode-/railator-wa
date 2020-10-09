@@ -83,9 +83,9 @@
             <div class="card mb-2">
                 <div class="card-body">
                     <div class="form-row d-flex align-items-center">
-                        Show <input type="number" name="loc-search-timeframe" class="form-control form-control-sm mx-1" style="width: 3rem" value="1" /> hours
-                        after <input type="time" name="loc-search-time" class="form-control form-control-sm mx-1" style="width: 6rem" min="1" max="24" />
-                        on <input type="date" name="loc-search-date" class="form-control form-control-sm mx-1" style="width: 10rem" />
+                        Show <input type="number" name="loc-search-timeframe" class="form-control form-control-sm mx-1" style="width: 3rem" v-bind:value="locSearchTimeWindow" /> hours
+                        after <input type="time" name="loc-search-time" class="form-control form-control-sm mx-1" style="width: 6rem" min="1" max="24" v-bind:value="locSearchTime" />
+                        on <input type="date" name="loc-search-date" class="form-control form-control-sm mx-1" style="width: 10rem" v-bind:value="locSearchDate" />
                         <button type="button" class="btn btn-sm btn-primary" aria-label="Search" v-on:click="handleLocSearch"><i class="fas fa-search"></i></button>
                         <p class="text-danger mb-0" v-if="locSearchTooFar">Live train info is only available for today and yesterday.</p>
                     </div>

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       locSearchTooFar: false,
       locSearchDate: null,
       locSearchTime: null,
-      locSearchTimeWindow: null,
+      locSearchTimeWindow: 1,
 
       history: {
         maxFrames: 20,
