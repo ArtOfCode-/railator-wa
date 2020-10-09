@@ -84,8 +84,8 @@
                 <div class="card-body">
                     <div class="form-row d-flex align-items-center">
                         Show <input type="number" name="loc-search-timeframe" class="form-control form-control-sm mx-1" style="width: 3rem" value="1" /> hours
-                        after <input type="time" name="loc-search-time" class="form-control form-control-sm mx-1" style="width: 6rem" value="00:00" min="1" max="24" />
-                        on <input type="date" name="loc-search-date" class="form-control form-control-sm mx-1" style="width: 10rem" value="1980-01-01" />
+                        after <input type="time" name="loc-search-time" class="form-control form-control-sm mx-1" style="width: 6rem" min="1" max="24" />
+                        on <input type="date" name="loc-search-date" class="form-control form-control-sm mx-1" style="width: 10rem" />
                         <button type="button" class="btn btn-sm btn-primary" aria-label="Search" v-on:click="handleLocSearch"><i class="fas fa-search"></i></button>
                         <p class="text-danger mb-0" v-if="locSearchTooFar">Live train info is only available for today and yesterday.</p>
                     </div>
@@ -150,8 +150,10 @@
                 {{ getReason('delay', serviceDetails.delayReason.content) }}.
             </div>
 
-            <div v-if="serviceDetails.cancelReason" class="alert alert-danger">
-                <p class="mb-0"><i class="fas fa-times-circle"></i> <strong>Cancelled at {{ serviceDetails.locations.location.filter(x => x.isCancelled)[0].locationName }}</strong></p>
+            <div v-if="serviceDetails.isCancelled" class="alert alert-danger">
+                <p class="mb-0">
+                    <i class="fas fa-times-circle"></i> <strong>Cancelled at {{ serviceDetails.locations.location.filter(x => x.isCancelled)[0].locationName }}</strong>
+                </p>
                 {{ getReason('cancel', serviceDetails.cancelReason.content) }}.
             </div>
 

@@ -40,10 +40,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       error: '',
       tiplocLocationData: null,
       locSearchTooFar: false,
+      locSearchDate: null,
+      locSearchTime: null,
+      locSearchTimeWindow: null,
 
       history: {
         maxFrames: 20,
-        attributes: ['mode', 'stationsDidYouMean', 'station', 'headcode', 'service', 'serviceDetails'],
+        attributes: ['mode', 'stationsDidYouMean', 'station', 'headcode', 'service', 'serviceDetails', 'locSearchDate', 'locSearchTime',
+                     'locSearchTimeWindow'],
         store: [],
         storeFrame: () => {
           const frame = {};
@@ -196,6 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.railator_lastFrame = `#station-${arrivals.crs}`;
         vm.mode = 'station';
         vm.searching = false;
+        vm.history.storeFrame();
       },
 
       handleHeadcodeSearch: async search => {
