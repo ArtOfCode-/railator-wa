@@ -172,6 +172,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dt = new Date(`${date}T${time}`);
         const timeWindow = Math.min(timeframe * 60, 1440);
 
+        vm.locSearchDate = date;
+        vm.locSearchTime = time;
+        vm.locSearchTimeWindow = timeframe;
+
         if (Math.abs(dt.getTime() - Date.now()) >= 86400000) {
           vm.locSearchTooFar = true;
           vm.searching = false;
