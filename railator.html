@@ -57,7 +57,7 @@
         </div>
 
         <div v-if="mode === ''">
-            <div class="card" v-for="search in savedSearchesList">
+            <div class="card my-2" v-for="search in savedSearchesList">
                 <div class="card-body">
                     <a href="#" v-on:click="autoSearch(search)"><strong>{{ search }}</strong></a><br/>
                     <a href="#" class="text-danger" v-on:click="deleteSavedSearch(search)"><small>remove</small></a>
