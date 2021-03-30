@@ -104,3 +104,16 @@ nav .back {
 .footer {
     text-align: center;
 }
+
+.service-details {
+    margin-bottom: 1em;
+}
+
+.service-details p {
+    margin-bottom: 0;
+}
+
+.service-details .dti {
+    display: inline-block;
+    width: 30px;
+}

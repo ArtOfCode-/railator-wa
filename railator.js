@@ -99,16 +99,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         vm.history.back();
       },
 
+      isValidCRS: crs => {
+        return window.tiplocLocationData.filter(x => x.crs === crs).length > 0;
+      },
+
+      isValidHeadcode: headcode => {
+        return !!/^\d[A-Za-z]\d{2}$/.exec(headcode);
+      },
+
       handleSearch: async () => {
         vm.searching = true;
         vm.mode = '';
 
         const search = $('#search').val();
-        if (search.length === 3) {
+        if (search.length === 3 && vm.isValidCRS(search)) {
           // CRS search
           await vm.handleCRSSearch(search);
         }
-        else if (search.length === 4) {
+        else if (search.length === 4 && vm.isValidHeadcode(search)) {
           // Headcode search
           await vm.handleHeadcodeSearch(search);
         }
