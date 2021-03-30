@@ -33,6 +33,9 @@
             <div class="input-group">
                 <input type="text" name="search" id="search" v-bind:disabled="searching" class="form-control" aria-label="Search" />
                 <div class="input-group-append">
+                    <button type="button" class="btn btn-success" v-on:click="saveCurrentSearch" aria-label="Save search">
+                        <i class="fas fa-save"></i>
+                    </button>
                     <button type="submit" id="search-submit" v-bind:disabled="searching" class="btn btn-primary" v-on:click="handleSearch" aria-label="Submit">
                         <i class="fas fa-search"></i>
                     </button>
@@ -50,6 +53,15 @@
             </div>
             <div class="my-2 d-flex justify-content-around" v-if="searching">
                 <i class="fas fa-2x fa-compass fa-spin"></i>
+            </div>
+        </div>
+
+        <div v-if="mode === ''">
+            <div class="card" v-for="search in savedSearchesList">
+                <div class="card-body">
+                    <a href="#" v-on:click="autoSearch(search)"><strong>{{ search }}</strong></a><br/>
+                    <a href="#" class="text-danger" v-on:click="deleteSavedSearch(search)"><small>remove</small></a>
+                </div>
             </div>
         </div>
 

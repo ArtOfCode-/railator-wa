@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       locSearchDate: null,
       locSearchTime: null,
       locSearchTimeWindow: 1,
+      savedSearchesList: [],
 
       history: {
         maxFrames: 20,
@@ -107,22 +108,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         return !!/^\d[A-Za-z]\d{2}$/.exec(headcode);
       },
 
+      saveSearch: search => {
+        const searches = JSON.parse(localStorage.railator_savedLocations || '[]');
+        searches.push(search);
+        vm.savedSearchesList = searches;
+        localStorage.railator_savedLocations = JSON.stringify(searches);
+      },
+
+      saveCurrentSearch: () => {
+        vm.saveSearch($('#search').val());
+      },
+
+      savedSearches: () => {
+        return JSON.parse(localStorage.railator_savedLocations || '[]');
+      },
+
+      deleteSavedSearch: search => {
+        const searches = JSON.parse(localStorage.railator_savedLocations || '[]');
+        const idx = searches.indexOf(search);
+        searches.splice(idx, 1);
+        vm.savedSearchesList = searches;
+        localStorage.railator_savedLocations = JSON.stringify(searches);
+      },
+
       handleSearch: async () => {
         vm.searching = true;
         vm.mode = '';
 
         const search = $('#search').val();
-        if (search.length === 3 && vm.isValidCRS(search)) {
+        const splat = search.split(' ');
+        const primary = splat.splice(0, 1)[0];
+
+        const params = Object.fromEntries(splat.map(x => x.split(/[\/\-\.,:]/)));
+
+        if (primary.length === 3 && vm.isValidCRS(primary)) {
           // CRS search
-          await vm.handleCRSSearch(search);
+          await vm.handleCRSSearch(primary, params);
         }
-        else if (search.length === 4 && vm.isValidHeadcode(search)) {
+        else if (primary.length === 4 && vm.isValidHeadcode(primary)) {
           // Headcode search
-          await vm.handleHeadcodeSearch(search);
+          await vm.handleHeadcodeSearch(primary, params);
         }
         else {
           // Typing a station name, most likely
-          await vm.handleStationNameSearch(search);
+          await vm.handleStationNameSearch(primary, params);
         }
 
         localStorage.railator_lastSearch = search;
@@ -130,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         vm.history.storeFrame();
       },
 
-      handleStationNameSearch: async search => {
+      handleStationNameSearch: async (search, params) => {
         if (vm.stations.length === 0) {
           const data = await vm.makeAPIRequest('GetStationList', { currentVersion: '2017-10-01' });
           if (data === -1) return;
@@ -150,9 +179,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         vm.autoSearch(localStorage.railator_lastSearch);
       },
 
-      handleCRSSearch: async search => {
-        const arrivals = await vm.makeAPIRequest('GetArrivalBoardByCRS', { numRows: 10, crs: search.toUpperCase(), time: new Date().toISOStringWithTZ(), timeWindow: 60 });
-        const departures = await vm.makeAPIRequest('GetDepartureBoardByCRS', { numRows: 10, crs: search.toUpperCase(), time: new Date().toISOStringWithTZ(), timeWindow: 60 });
+      handleCRSSearch: async (search, params) => {
+        const arrivals = await vm.makeAPIRequest('GetArrivalBoardByCRS', { numRows: 15, crs: search.toUpperCase(), time: new Date().toISOStringWithTZ(), timeWindow: 60 });
+        const departures = await vm.makeAPIRequest('GetDepartureBoardByCRS', { numRows: 15, crs: search.toUpperCase(), time: new Date().toISOStringWithTZ(), timeWindow: 60 });
         if (arrivals === -1 || departures === -1) return;
 
         vm.station = {
@@ -169,6 +198,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         localStorage.railator_lastFrame = `#station-${arrivals.crs}`;
         vm.mode = 'station';
+
+        const arrData = await Promise.all(vm.station.arr.map(s => vm.makeAPIRequest('GetServiceDetailsByRID', { rid: s.rid })));
+        const depData = await Promise.all(vm.station.dep.map(s => vm.makeAPIRequest('GetServiceDetailsByRID', { rid: s.rid })));
+
+        arrData.forEach((d, i) => vm.station.arr[i].fullDetails = d);
+        depData.forEach((d, i) => vm.station.dep[i].fullDetails = d);
+
+        // D: Destination - filter departures only
+        if (params.D) {
+          vm.station.dep = vm.station.dep.filter(s => s.destination.location.crs === params.D);
+        }
+
+        // F: From - filter arrivals only
+        if (params.F) {
+          vm.station.arr = vm.station.arr.filter(s => s.origin.location.crs === params.F);
+        }
+
+        // S: Stop - filter both
+        if (params.S) {
+          vm.station.dep = vm.station.dep.filter(s => s.fullDetails.locations.location.filter(l => !l.isPass && l.crs === params.S).length > 0);
+          vm.station.arr = vm.station.arr.filter(s => s.fullDetails.locations.location.filter(l => !l.isPass && l.crs === params.S).length > 0);
+        }
+
+        // P: Pass/Stop - filter both
+        if (params.P) {
+          vm.station.dep = vm.station.dep.filter(s => s.fullDetails.locations.location.filter(l => l.crs === params.S).length > 0);
+          vm.station.arr = vm.station.arr.filter(s => s.fullDetails.locations.location.filter(l => l.crs === params.S).length > 0);
+        }
       },
 
       handleLocSearch: async () => {
@@ -215,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         vm.history.storeFrame();
       },
 
-      handleHeadcodeSearch: async search => {
+      handleHeadcodeSearch: async (search, params) => {
         const data = await vm.makeAPIRequest('QueryServices', { serviceID: search.toUpperCase(), sdd: new Date().toISODateString() });
         if (data === -1) return;
         vm.headcode = !data.serviceList ? [] :
@@ -293,6 +350,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   });
+
+  vm.savedSearchesList = vm.savedSearches();
 
   const reasonsData = await vm.makeAPIRequest('GetReasonCodeList');
   if (reasonsData === -1) {
