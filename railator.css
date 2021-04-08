@@ -117,3 +117,81 @@ nav .back {
     display: inline-block;
     width: 30px;
 }
+
+.transport-line {
+    margin-bottom: 0.5em;
+}
+
+.transport-line span {
+    display: inline-block;
+    padding: 0.1em 0.75em;
+    border-radius: 3px;
+}
+
+.transport-line-VIC span {
+    background: #00a0e2;
+}
+
+.transport-line-PIC span {
+    background: #0019a8;
+    color: white;
+}
+
+.transport-line-WTC span {
+    background: #76d0bd;
+}
+
+.transport-line-NTH span {
+    background: black;
+    color: white;
+}
+
+.transport-line-MET span {
+    background: #751056;
+    color: white;
+}
+
+.transport-line-JUB span {
+    background: #6a7278;
+    color: white;
+}
+
+.transport-line-DIS span {
+    background: #007229;
+    color: white;
+}
+
+.transport-circle-CIR span {
+    background: #ffce00;
+}
+
+.transport-line-HAM span {
+    background: #d799af;
+}
+
+.transport-line-CEN span {
+    background: #dc241f;
+    color: white;
+}
+
+.transport-line-BAK span {
+    background: #894e24;
+    color: white;
+}
+
+.transport-line-OVG span {
+    background: #e86a10;
+}
+
+.transport-line-ELZ span {
+    background: #6950a1;
+    color: white;
+}
+
+.transport-line-DLR span {
+    background: #00afad;
+}
+
+.transport-line-TRM span {
+    background: #66cc00;
+}

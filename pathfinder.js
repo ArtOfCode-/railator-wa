@@ -9,7 +9,7 @@ Array.prototype.zip = function (b) {
   return Object.fromEntries(this.map((x, i) => [x, b[i]]));
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   window.vm = new Vue({
     el: '#app',
     data: {
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lines: null,
       loading: true,
       routeSelected: false,
+      routeData: null,
       from: null,
       to: null,
       saved: []
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         vm.stations = await vm.jsonRequest('-/stations');
         vm.lines = await vm.jsonRequest('-/lines');
         vm.stationLookup = Object.values(vm.stations).zip(Object.keys(vm.stations));
+        vm.lineLookup = Object.values(vm.lines).zip(Object.keys(vm.lines));
         vm.saved = vm.getSavedRoutes();
         vm.loading = false;
       },
@@ -55,13 +57,54 @@ document.addEventListener('DOMContentLoaded', () => {
         const idx = vm.saved.indexOf([from, to]);
         vm.saved.splice(idx, 1);
         vm.persistSavedRoutes();
+      },
+
+      saveRoute: () => {
+        const from = $('#from').val();
+        const to = $('#to').val();
+        if (from && to) {
+          vm.addSavedRoute(from, to);
+        }
+      },
+
+      findRouteFromSearch: () => {
+        const from = $('#from').val();
+        const to = $('#to').val();
+        if (from && to) {
+          vm.findRoute(from, to);
+        }
+      },
+
+      findRoute: async (from, to) => {
+        vm.from = from;
+        vm.to = to;
+        vm.routeData = await vm.jsonRequest(`-/?from=${from}&to=${to}`);
+        vm.changeMode(true);
+      },
+
+      changeMode: selected => {
+        if (selected) {
+          $('#from').select2('destroy');
+          $('#to').select2('destroy');
+        }
+        vm.routeSelected = selected;
+        if (!selected) {
+          setTimeout(() => {
+            $('.select2').select2();
+          }, 0);
+        }
       }
     }
   });
 
-  vm.setupData();
+  $('.select2').select2();
 
-  $('.select2').select2({
+  await vm.setupData();
 
-  });
+  if (location.hash) {
+    const splat = location.hash.replace('#', '').split('--').map(c => decodeURIComponent(c));
+    if (splat.length == 2) {
+      vm.findRoute(splat[0], splat[1]);
+    }
+  }
 });

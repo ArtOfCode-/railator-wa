@@ -57,20 +57,45 @@
                 </select>
             </div>
 
-            <button type="button" class="btn btn-primary"><i class="fas fa-search" @click="findRoute"></i> Find Route</button>
-            <button type="button" class="btn btn-success"><i class="fas fa-save" @click="saveRoute"></i> Save Route</button>
+            <button type="button" class="btn btn-primary" @click="findRouteFromSearch"><i class="fas fa-search"></i> Find Route</button>
+            <button type="button" class="btn btn-success" @click="saveRoute"><i class="fas fa-save"></i> Save Route</button>
 
             <hr/>
 
-            <div class="card" v-for="route in saved" :key="route">
+            <div class="card my-2" v-for="route in saved" :key="`${route[0]}-${route[1]}`">
                 <div class="card-body">
-                    
+                    <a href="#" @click="findRoute(route[0], route[1])">
+                        <strong>{{ stations[route[0]] }} &ndash; {{ stations[route[1]] }}</strong>
+                    </a><br/>
+                    <a href="#" class="text-danger" @click="removeSavedRoute(route[0], route[1])"><small>remove</small></a>
                 </div>
             </div>
         </div>
 
         <div v-if="routeSelected">
+            <button type="button" class="btn btn-primary mb-2" @click="changeMode(false)">Clear Route</button>
 
+            <h4>
+                {{ stations[from] }} &ndash; {{ stations[to] }}
+                <a :href="`#${from}--${to}`"><i class="fas fa-link"></i></a>
+            </h4>
+
+            <p>
+                <strong>Journey time</strong><br/>
+                {{ routeData.time.hours }}h {{ routeData.time.minutes }}m
+            </p>
+
+            <div class="timeline">
+                <div class="timeline-item" v-for="step in routeData.steps" :key="step.line">
+                    <div class="timeline-content">
+                        <div :class="`transport-line transport-line-${lineLookup[step.line].substr(0, 3)}`">
+                            <span>{{ step.line }}</span>
+                        </div>
+                        <small class="text-muted">from</small> {{ stations[step.from] }}<br/>
+                        <small class="text-muted">to</small> {{ stations[step.to] }}
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </div>
