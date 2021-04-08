@@ -24,11 +24,17 @@
 </head>
 <body>
 <div id="app">
-    <nav class="navbar navbar-expand-xl navbar-dark bg-dark mb-4">
+    <nav class="navbar navbar-expand-xl navbar-dark bg-dark">
         <a href="#" role="button" v-on:click="goBackOne" class="text-light back"><i class="fas fa-arrow-left" aria-label="Back"></i></a>
         <a class="navbar-brand" href="#">Railator</a>
     </nav>
     <main class="content col-xs-12 col-md-6 offset-md-3 col-xl-4 offset-xl-4">
+        <div class="d-flex mb-4 mt-2 justify-content-center">
+            <div class="btn-group" role="group">
+                <a href="#" class="btn btn-link">Railator</a>
+                <a href="/pathfinder" class="btn btn-link">Pathfinder</a>
+            </div>
+        </div>
         <div class="search">
             <div class="input-group">
                 <input type="text" name="search" id="search" v-bind:disabled="searching" class="form-control" aria-label="Search" />

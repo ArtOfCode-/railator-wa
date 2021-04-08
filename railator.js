@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.vm = new Vue({
     el: '#app',
     data: {
-      apiBase: 'https://railator.artofcode.co.uk/',
+      apiBase: 'http://localhost:3000/',
       apiVersion: '2017-10-01',
       stations: [],
       reasons: [],
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       decodeEntities: str => he.decode(str),
 
       makeAPIRequest: async (method, params) => {
-        const response = await fetch(`${vm.apiBase}/${method}?${$.param(params)}`);
+        const response = await fetch(`${vm.apiBase}${method}?${$.param(params)}`);
         const data = await response.json();
         if (response.status === 400) {
           vm.error = data.error;
