@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       },
 
       setupData: async () => {
-        vm.stations = await vm.jsonRequest('-/stations');
-        vm.lines = await vm.jsonRequest('-/lines');
+        vm.stations = await vm.jsonRequest('pathfinder/stations');
+        vm.lines = await vm.jsonRequest('pathfinder/lines');
         vm.stationLookup = Object.values(vm.stations).zip(Object.keys(vm.stations));
         vm.lineLookup = Object.values(vm.lines).zip(Object.keys(vm.lines));
         vm.saved = vm.getSavedRoutes();
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       findRoute: async (from, to) => {
         vm.from = from;
         vm.to = to;
-        vm.routeData = await vm.jsonRequest(`-/?from=${from}&to=${to}`);
+        vm.routeData = await vm.jsonRequest(`pathfinder/?from=${from}&to=${to}`);
         vm.changeMode(true);
       },
 
