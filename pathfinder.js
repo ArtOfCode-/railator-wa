@@ -9,6 +9,8 @@ Array.prototype.zip = function (b) {
   return Object.fromEntries(this.map((x, i) => [x, b[i]]));
 };
 
+const randomId = () => Math.floor(Math.random() * 1048576).toString(16);
+
 document.addEventListener('DOMContentLoaded', async () => {
   window.vm = new Vue({
     el: '#app',
@@ -22,7 +24,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       routeData: null,
       from: null,
       to: null,
-      saved: []
+      saved: [],
+      disruptions: [],
+      activeDisruptions: []
     },
     methods: {
       jsonRequest: async path => {
@@ -79,6 +83,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         vm.from = from;
         vm.to = to;
         vm.routeData = await vm.jsonRequest(`pathfinder/?from=${from}&to=${to}`);
+        vm.disruptions = await vm.jsonRequest('tfl/Disruption');
+        vm.activeDisruptions = Object.fromEntries(Object.keys(vm.routeData.stations).map(lk => {
+          const lineStops = vm.routeData.stations[lk];
+          return [lk, vm.disruptions.filter(d => lineStops.some(ls => d.atcoCode === ls || d.stationAtcoCode === ls))
+                                    .map(d => { d.id = randomId(); return d; })];
+        }));
         vm.changeMode(true);
       },
 
@@ -93,6 +103,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             $('.select2').select2();
           }, 0);
         }
+      },
+
+      alertClass: type => {
+        const types = {
+          'Information': 'alert-info',
+          'Interchange Message': 'alert-info',
+          'Part Closure': 'alert-warning',
+          'Closure': 'alert-danger'
+        };
+        return types[type] || 'alert-info';
       }
     }
   });
@@ -102,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await vm.setupData();
 
   if (location.hash) {
-    const splat = location.hash.replace('#', '').split('--').map(c => decodeURIComponent(c));
+    const splat = location.hash.replace('#', '').split('/').map(c => decodeURIComponent(c));
     if (splat.length == 2) {
       vm.findRoute(splat[0], splat[1]);
     }

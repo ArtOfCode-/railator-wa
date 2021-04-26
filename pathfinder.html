@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/railator-192.png" />
     <meta name="theme-color" content="#007BFF" />
 
-    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
     <link rel="stylesheet" type="text/css" href="railator.css" />
@@ -21,6 +21,7 @@
     <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script type="application/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
     <script type="application/javascript" src="pathfinder.js"></script>
 </head>
 <body>
@@ -77,7 +78,7 @@
 
             <h4>
                 {{ stations[from] }} &ndash; {{ stations[to] }}
-                <a :href="`#${from}--${to}`"><i class="fas fa-link"></i></a>
+                <a :href="`#${from}/${to}`"><i class="fas fa-link"></i></a>
             </h4>
 
             <p>
@@ -93,6 +94,17 @@
                         </div>
                         <small class="text-muted">from</small> {{ stations[step.from] }}<br/>
                         <small class="text-muted">to</small> {{ stations[step.to] }}
+                        <div class="alert mb-1" v-for="disruption in activeDisruptions[lineLookup[step.line]]"
+                             :key="disruption.id" :class="alertClass(disruption.type)">
+                            <button class="btn btn-link btn-block text-left pl-0 alert-link" data-toggle="collapse"
+                                    :data-target="`#disruption-${disruption.id}`">
+                                <small><strong>{{ disruption.type }}</strong> at <strong>{{ stations[disruption.atcoCode] }}</strong></small>
+                            </button>
+
+                            <p class="collapse mb-0" :id="`disruption-${disruption.id}`">
+                                <small>{{ disruption.description }}</small>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
