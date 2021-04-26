@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.vm = new Vue({
     el: '#app',
     data: {
-      apiBase: 'https://railator.artofcode.co.uk/',
+      apiBase: 'http://localhost:3000/',
       stations: null,
       stationLookup: null,
       lines: null,
