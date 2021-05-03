@@ -195,3 +195,8 @@ nav .back {
 .transport-line-TRM span {
     background: #66cc00;
 }
+
+.transport-line-XGN span {
+    background: black;
+    color: white;
+}

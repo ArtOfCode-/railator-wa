@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.vm = new Vue({
     el: '#app',
     data: {
-      apiBase: 'http://localhost:3000/',
+      apiBase: 'https://railator.artofcode.co.uk/',
       stations: null,
       stationLookup: null,
       lines: null,
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         vm.from = from;
         vm.to = to;
         vm.routeData = await vm.jsonRequest(`pathfinder/?from=${from}&to=${to}`);
-        vm.disruptions = await vm.jsonRequest('tfl/Disruption');
+        vm.disruptions = await vm.jsonRequest('tfl/AllDisruptions');
         vm.activeDisruptions = Object.fromEntries(Object.keys(vm.routeData.stations).map(lk => {
           const lineStops = vm.routeData.stations[lk];
           return [lk, vm.disruptions.filter(d => lineStops.some(ls => d.atcoCode === ls || d.stationAtcoCode === ls))
